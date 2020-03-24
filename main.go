@@ -140,7 +140,7 @@ func getData(url string, config *Config) (data []string, err error) {
 		return nil, err
 	}
 
-	data = htmlDoc.Find(".maincounter-number").Map(func(index int, item *goquery.Selection) string {
+	commonData := htmlDoc.Find(".maincounter-number").Map(func(index int, item *goquery.Selection) string {
 
 		title := item.Parent().Find("h1").Text()
 		value := item.Text()
@@ -152,6 +152,16 @@ func getData(url string, config *Config) (data []string, err error) {
 
 		return fmt.Sprintf("%s %s", title, value)
 	})
+
+	if len(commonData) > 0 {
+
+		data = append(data, "Common:")
+		data = append(data, "")
+
+		for _, commonDataItem := range commonData {
+			data = append(data, fmt.Sprintf("- %s", commonDataItem))
+		}
+	}
 
 	if config.ForCountry != "" {
 
@@ -191,11 +201,15 @@ func getData(url string, config *Config) (data []string, err error) {
 
 			if len(countryData) > 0 {
 
-				data = append(data, "")
+				if len(data) > 0 {
+					data = append(data, "")
+				}
+
 				data = append(data, fmt.Sprintf("For country - %s", config.ForCountry))
+				data = append(data, "")
 
 				for _, countryDataItem := range countryData {
-					data = append(data, countryDataItem)
+					data = append(data, fmt.Sprintf("- %s", countryDataItem))
 				}
 			}
 		}
