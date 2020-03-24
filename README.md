@@ -9,6 +9,7 @@ The main goal of the project is to monitor the state of the COVID-19 coronavirus
 - [How to start](#how-to-start)
 - [Run as service](#run-as-service)
     - [For Linux](#for-linux)
+    - [For Windows](#for-windows)
 
 ## Configuration
 
@@ -70,3 +71,7 @@ At the same time, to view service messages, you must call the command:
 ```
 systemctl -fu covid-19-reporter
 ```
+
+### For Windows
+
+https://support.microsoft.com/en-us/help/251192/how-to-create-a-windows-service-by-using-sc-exe
