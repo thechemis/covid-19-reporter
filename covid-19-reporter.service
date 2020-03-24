@@ -1,0 +1,15 @@
+Description=covid-19-reporter
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=path to covid-19-reporter directory
+ExecStart=path to covid-19-reporter
+Restart=always
+RestartSec=3s
+
+[Install]
+WantedBy=multi-user.target
