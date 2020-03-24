@@ -46,7 +46,7 @@ func main() {
 	go func() {
 		for {
 			var data []string
-			if data, err = getData(urlData); err != nil {
+			if data, err = getData(urlData, config); err != nil {
 				exit <- err
 				break
 			}
@@ -82,6 +82,7 @@ func getConfig() (config *Config, err error) {
 		"PASSWORD",
 		"REPORT_PERIOD",
 		"REPORT_TO",
+		"FOR_COUNTRY",
 	}
 
 	configVariableValues := make(map[string]string)
@@ -115,10 +116,12 @@ func getConfig() (config *Config, err error) {
 
 	config.ReportTo = strings.Split(configVariableValues["REPORT_TO"], ",")
 
+	config.ForCountry = configVariableValues["FOR_COUNTRY"]
+
 	return config, nil
 }
 
-func getData(url string) (data []string, err error) {
+func getData(url string, config *Config) (data []string, err error) {
 
 	var (
 		response *http.Response
@@ -149,6 +152,54 @@ func getData(url string) (data []string, err error) {
 
 		return fmt.Sprintf("%s %s", title, value)
 	})
+
+	if config.ForCountry != "" {
+
+		tableItem := htmlDoc.Find("#main_table_countries_today")
+
+		var rowItem *goquery.Selection
+
+		tableItem.Find("tbody").First().Find("tr").Each(func(index int, item *goquery.Selection) {
+			if strings.ToUpper(item.Find("td").First().Text()) == strings.ToUpper(config.ForCountry) {
+				rowItem = item
+			}
+		})
+
+		if rowItem != nil {
+
+			var countryData []string
+
+			rowItem.Find("td").Each(func(index int, item *goquery.Selection) {
+				if index > 0 {
+
+					itemText := item.Text()
+					itemText = strings.Trim(itemText, " ")
+
+					if itemText == "" {
+						itemText = "-"
+					}
+
+					countryData = append(countryData, itemText)
+				}
+			})
+
+			tableItem.Find("thead th").Each(func(index int, item *goquery.Selection) {
+				if index > 0 {
+					countryData[index-1] = fmt.Sprintf("%s: %s", item.Text(), countryData[index-1])
+				}
+			})
+
+			if len(countryData) > 0 {
+
+				data = append(data, "")
+				data = append(data, fmt.Sprintf("For country - %s", config.ForCountry))
+
+				for _, countryDataItem := range countryData {
+					data = append(data, countryDataItem)
+				}
+			}
+		}
+	}
 
 	return
 }

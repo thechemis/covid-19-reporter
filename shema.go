@@ -10,6 +10,7 @@ type Config struct {
 	Password     string
 	ReportPeriod int
 	ReportTo     []string
+	ForCountry   string
 }
 
 // GetFullSMTPServer - get SMTPServer:SMTPPort

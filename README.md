@@ -22,11 +22,14 @@ EMAIL=example@gmail.com
 PASSWORD=example_password
 REPORT_PERIOD=60
 REPORT_TO=example1@gmail.com,example2@gmail.com
+FOR_COUNTRY=USA
 ```
 
 Settings **SMTP_PORT** and **REPORT_PERIOD** are numbers, and **REPORT_PERIOD** is the number of minutes to resend the report.
 
 Setting **REPORT_TO** may contain multiple emails, separated by commas.
+
+Optional setting **FOR_COUNTRY** - country for which detailed information is required.
 
 If there is no settings file, an exception is thrown.
 
