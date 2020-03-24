@@ -113,7 +113,7 @@ func getConfig() (config *Config, err error) {
 	}
 	config.ReportPeriod = period
 
-	config.ReportTo = configVariableValues["REPORT_TO"]
+	config.ReportTo = strings.Split(configVariableValues["REPORT_TO"], ",")
 
 	return config, nil
 }
@@ -157,10 +157,13 @@ func sendData(data []string, fromTitle, subject string, config *Config) (err err
 
 	messageBody := strings.Join(data, "\n")
 
-	message := fmt.Sprintf("From: %s <%s>\nTo: %s\nSubject: %s\n\n%s", fromTitle, config.Email, config.ReportTo, subject, messageBody)
+	for _, emailTo := range config.ReportTo {
 
-	if err = smtp.SendMail(config.GetFullSMTPServer(), smtp.PlainAuth("", config.Email, config.Password, config.SMTPServer), config.Email, []string{config.ReportTo}, []byte(message)); err != nil {
-		return err
+		message := fmt.Sprintf("From: %s <%s>\nTo: %s\nSubject: %s\n\n%s", fromTitle, config.Email, emailTo, subject, messageBody)
+
+		if err = smtp.SendMail(config.GetFullSMTPServer(), smtp.PlainAuth("", config.Email, config.Password, config.SMTPServer), config.Email, []string{emailTo}, []byte(message)); err != nil {
+			return err
+		}
 	}
 
 	return

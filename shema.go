@@ -9,7 +9,7 @@ type Config struct {
 	Email        string
 	Password     string
 	ReportPeriod int
-	ReportTo     string
+	ReportTo     []string
 }
 
 // GetFullSMTPServer - get SMTPServer:SMTPPort
