@@ -1,7 +1,7 @@
 COVID-19-Reporter
 ===
 
-![covid-19.png](https://https://github.com/thechemis/covid-19-reporter/covid-19.png)
+![covid-19.png](https://github.com/thechemis/covid-19-reporter/covid-19.png)
 
 The main goal of the project is to monitor the state of the COVID-19 coronavirus and notify via email at the current time about the state of the virus via email.
 
