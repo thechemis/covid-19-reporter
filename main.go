@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/smtp"
+	"net/url"
 	"os"
 	"os/signal"
 	"strconv"
@@ -14,6 +16,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/joho/godotenv"
+	"golang.org/x/net/proxy"
 )
 
 const projectName = "COVID-19-Reporter"
@@ -83,6 +86,9 @@ func getConfig() (config *Config, err error) {
 		"REPORT_PERIOD",
 		"REPORT_TO",
 		"FOR_COUNTRY",
+		"TELEGRAM_TOKEN",
+		"TELEGRAM_CHAT_ID",
+		"TELEGRAM_PROXY_URL",
 	}
 
 	configVariableValues := make(map[string]string)
@@ -117,6 +123,10 @@ func getConfig() (config *Config, err error) {
 	config.ReportTo = strings.Split(configVariableValues["REPORT_TO"], ",")
 
 	config.ForCountry = configVariableValues["FOR_COUNTRY"]
+
+	config.TelegramToken = configVariableValues["TELEGRAM_TOKEN"]
+	config.TelegramChatID = configVariableValues["TELEGRAM_CHAT_ID"]
+	config.TelegramProxyURL = configVariableValues["TELEGRAM_PROXY_URL"]
 
 	return config, nil
 }
@@ -228,6 +238,46 @@ func sendData(data []string, fromTitle, subject string, config *Config) (err err
 
 		if err = smtp.SendMail(config.GetFullSMTPServer(), smtp.PlainAuth("", config.Email, config.Password, config.SMTPServer), config.Email, []string{emailTo}, []byte(message)); err != nil {
 			return err
+		}
+	}
+
+	if config.TelegramToken != "" && config.TelegramChatID != "" {
+
+		client := &http.Client{}
+
+		if config.TelegramProxyURL != "" {
+
+			transport := &http.Transport{}
+
+			var dialSocksProxy proxy.Dialer
+			if dialSocksProxy, err = proxy.SOCKS5("tcp", config.TelegramProxyURL, nil, proxy.Direct); err != nil {
+				panic(err)
+			}
+			transport.Dial = dialSocksProxy.Dial
+
+			client.Transport = transport
+		}
+
+		sendMessageURL := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s",
+			config.TelegramToken,
+			config.TelegramChatID,
+			url.PathEscape(messageBody),
+		)
+
+		var response *http.Response
+
+		if response, err = client.Get(sendMessageURL); err != nil {
+
+			log.Println(fmt.Sprintf("Error on send telegram message: %v", err))
+			err = nil
+		}
+
+		if response != nil {
+
+			if data, err := ioutil.ReadAll(response.Body); err == nil {
+				log.Println(fmt.Sprintf("Response from telegram: %s", string(data)))
+			}
+			err = nil
 		}
 	}
 

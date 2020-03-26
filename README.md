@@ -12,6 +12,7 @@ The main goal of the project is to monitor the state of the COVID-19 coronavirus
 - [Run as service](#run-as-service)
     - [For Linux](#for-linux)
     - [For Windows](#for-windows)
+- [Send to Telegram](#send-to-telegram)
 
 ## Configuration
 
@@ -25,6 +26,9 @@ PASSWORD=example_password
 REPORT_PERIOD=60
 REPORT_TO=example1@gmail.com,example2@gmail.com
 FOR_COUNTRY=USA
+TELEGRAM_TOKEN=
+TELEGRAM_CHAT_ID=
+TELEGRAM_PROXY_URL=
 ```
 
 Settings **SMTP_PORT** and **REPORT_PERIOD** are numbers, and **REPORT_PERIOD** is the number of minutes to resend the report.
@@ -80,3 +84,13 @@ systemctl -fu covid-19-reporter
 ### For Windows
 
 https://support.microsoft.com/en-us/help/251192/how-to-create-a-windows-service-by-using-sc-exe
+
+## Send to Telegram
+
+In order to send a report to Telegram you need to create a bot. When you create, you get the settings. Specify the received settings in the file `config.env`.
+
+**TELEGRAM_TOKEN** - token for connecting to Telegrams API.
+
+**TELEGRAM_CHAT_ID** - ID of the chat to which the report will be sent.
+
+**TELEGRAM_PROXY_URL** - proxy settings (optional).
