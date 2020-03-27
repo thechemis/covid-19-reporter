@@ -150,6 +150,9 @@ func getData(url string, config *Config) (data []string, err error) {
 		return nil, err
 	}
 
+	cache, _ := loadCacheFromFile()
+	cacheNew := make(map[int]string)
+
 	commonData := htmlDoc.Find(".maincounter-number").Map(func(index int, item *goquery.Selection) string {
 
 		title := item.Parent().Find("h1").Text()
@@ -160,8 +163,16 @@ func getData(url string, config *Config) (data []string, err error) {
 
 		value = strings.ReplaceAll(value, ",", "")
 
+		cacheNew[index] = value
+
+		if cache != nil {
+			value += fmt.Sprintf(" (old %s)", cache[index])
+		}
+
 		return fmt.Sprintf("%s %s", title, value)
 	})
+
+	saveCacheToFile(cacheNew)
 
 	if len(commonData) > 0 {
 
