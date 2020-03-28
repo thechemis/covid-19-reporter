@@ -166,7 +166,25 @@ func getData(url string, config *Config) (data []string, err error) {
 		cacheNew[index] = value
 
 		if cache != nil {
-			value += fmt.Sprintf(" (old %s)", cache[index])
+
+			var (
+				currentValue int
+				newValue     int
+			)
+
+			oldValueFunc := func() {
+				value += fmt.Sprintf(" (old %s)", cache[index])
+			}
+
+			if currentValue, err = strconv.Atoi(value); err != nil {
+				oldValueFunc()
+			} else if _, ok := cache[index]; !ok {
+				oldValueFunc()
+			} else if newValue, err = strconv.Atoi(cache[index]); err != nil {
+				oldValueFunc()
+			} else if newValue-currentValue > 0 {
+				value += fmt.Sprintf(" (+ %d)", newValue-currentValue)
+			}
 		}
 
 		return fmt.Sprintf("%s %s", title, value)
